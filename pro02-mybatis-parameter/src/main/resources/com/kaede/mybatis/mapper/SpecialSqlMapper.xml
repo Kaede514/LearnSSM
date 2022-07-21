@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kaede.mybatis.mapper.SpecialSqlMapper">
+    <!--List<User> getUserByLike(@Param("like") String like);-->
+    <select id="getUserByLike" resultType="User">
+        <!--select * from t_user where username like '%${like}%'-->
+        <!--select * from t_user where username like concat('%',#{like},'%')-->
+        <!--推荐以下这种方式，其实用双引号也行-->
+        select * from t_user where username like '%'#{like}'%'
+        <!--select * from t_user where username like "%"#{like}"%"-->
+    </select>
+
+    <!--void deleteMoreUser(@Param("ids") String ids);-->
+    <select id="deleteMoreUser">
+        <!--delete from t_user where id in('3,4')-->
+        <!--delete from t_user where id in(#{ids})-->
+        delete from t_user where id in(${ids})
+    </select>
+
+    <!--List<User> getUserList(@Param("tableName") String tableName);-->
+    <select id="getUserList" resultType="User">
+        select * from ${tableName}
+    </select>
+
+    <!--void insertUser(User user);-->
+    <!--
+        useGeneratedKeys：表示当前添加功能使用了自增的主键
+        keyProperty：将添加的数据的自增主键赋值为实体类类型的参数的属性赋值
+    -->
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="id">
+        insert into t_user values(null,#{username},#{password},#{age},#{gender},#{email})
+    </insert>
+</mapper>
