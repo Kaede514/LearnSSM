@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kaede.mybatis.mapper.DynamicSQLMapper">
+
+    <!--
+        动态SQL：
+        1、if：通过test属性中的表达式判断标签中内容是否有效（是否会拼接到SQL中）
+        2、where：1）若where标签中条件成立会自动生成where关键字
+                 2）会自动将where标签中内容前多余的and去掉
+                 3）若where标签中没有任何一个条件成立，则where标签没有任何功能
+        3、trim：1）prefix、suffix：在标签中内容前面或后面添加指定内容
+                2)prefixOverrides、suffixOverrides：在标签中内容前面或后面去掉指定内容
+                执行顺序为先pre/suffixOverrides，再prefix/suffix
+        4、choose、when、otherwize：相当于Java中的if...else if...else...
+                when至少设置一个，otherwise最多设置一个
+        5、foreach：collection：设置要循环的数组或集合
+                   item：用一个字符串来表示数组或集合中的每一个数据
+                   separator：设置每次循环的数据之间的分隔符
+                   open/close：循环的所有内容以xx开始/结束
+        6、sql片段：记录一段sql，在需要用的地方使用include标签进行引用
+                <sql id="empColumns">
+                    emp_id, emp_name, emp_age, emp_gender, dept_id
+                </sql>
+                <include refid="empColumns"></include>
+    -->
+
+    <sql id="empColumns">
+        emp_id, emp_name, emp_age, emp_gender, dept_id
+    </sql>
+
+    <!--List<Emp> getEmpByCondition(Emp emp);-->
+    <!--
+        若empName为""或null，则where后直接跟and报错，若条件都为""或null，则
+        where后什么也没有，报错
+    -->
+    <!--
+    <select id="getEmpByCondition" resultType="Emp">
+        select * from t_emp where
+        <if test="empName != null and empName != ''">
+            emp_name = #{empName}
+        </if>
+        <if test="empAge != null and empAge != ''">
+            and emp_age = #{empAge}
+        </if>
+        <if test="empGender != null and empGender != ''">
+            and emp_gender = #{empGender}
+        </if>
+    </select>
+    -->
+
+    <!--解决方法一：where true-->
+    <!--
+    <select id="getEmpByCondition" resultType="Emp">
+        select * from t_emp where true
+        <if test="empName != null and empName != ''">
+            and emp_name = #{empName}
+        </if>
+        <if test="empAge != null and empAge != ''">
+            and emp_age = #{empAge}
+        </if>
+        <if test="empGender != null and empGender != ''">
+            and emp_gender = #{empGender}
+        </if>
+    </select>
+    -->
+
+    <!--解决方法二：where标签-->
+    <!--
+    <select id="getEmpByCondition" resultType="Emp">
+        select * from t_emp
+        <where>
+            <if test="empName != null and empName != ''">
+                emp_name = #{empName}
+            </if>
+            <if test="empAge != null and empAge != ''">
+                and emp_age = #{empAge}
+            </if>
+            <if test="empGender != null and empGender != ''">
+                and emp_gender = #{empGender}
+            </if>
+        </where>
+    </select>
+    -->
+
+    <!--解决方法三：trim标签-->
+    <select id="getEmpByCondition" resultType="Emp">
+        select <include refid="empColumns"></include> from t_emp
+        <trim prefix="where" suffixOverrides="and">
+            <if test="empName != null and empName != ''">
+                emp_name = #{empName} and
+            </if>
+            <if test="empAge != null and empAge != ''">
+                emp_age = #{empAge} and
+            </if>
+            <if test="empGender != null and empGender != ''">
+                emp_gender = #{empGender}
+            </if>
+        </trim>
+    </select>
+
+    <!--List<Emp> getEmpByChoose(Emp emp);-->
+    <select id="getEmpByChoose" resultType="Emp">
+        select * from t_emp
+        <where>
+            <choose>
+                <when test="empName != null and empName != ''">
+                    emp_name = #{empName}
+                </when>
+                <when test="empAge != null and empAge != ''">
+                    emp_age = #{empAge} and
+                </when>
+                <when test="empGender != null and empGender != ''">
+                    emp_gender = #{empGender}
+                </when>
+            </choose>
+        </where>
+    </select>
+    
+    <!--void insertMoreEmp(@Param("emps") List<Emp> emps);-->
+    <insert id="insertMoreEmp">
+        insert into t_emp values
+        <foreach collection="emps" item="emp" separator=",">
+            (null,#{emp.empName},#{emp.empAge},#{emp.empGender},null)
+        </foreach>
+    </insert>
+
+    <!--void deleteMoreEmp(@Param("empIds") Integer[] empIds);-->
+    <delete id="deleteMoreEmp">
+        delete from t_emp where emp_id in
+        (
+            <foreach collection="empIds" item="empId" separator=",">
+                #{empId}
+            </foreach>
+        )
+        <!--
+        delete from t_emp where emp_id in
+        <foreach collection="empIds" item="empId" separator="," open="(" close=")">
+            #{empId}
+        </foreach>
+        -->
+        <!--
+        delete from t_emp where
+        # or前后不用加空格，因为separator标签在设置分隔符的时候会自动在前面和后面加空格
+        <foreach collection="empIds" item="empId" separator="or">
+            emp_id = #{empId}
+        </foreach>
+        -->
+    </delete>
+</mapper>
