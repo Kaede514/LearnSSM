@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kaede.mybatis.mapper.CacheMapper">
+
+    <!--type设置二级缓存的类型，若不设置，则使用默认的二级缓存类型-->
+    <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+
+    <!--Emp getEmpById(@Param("empId") Integer empId);-->
+    <select id="getEmpById" resultType="Emp">
+        select * from t_emp where emp_id = #{empId}
+    </select>
+
+    <!--void insertEmp(Emp emp);-->
+    <insert id="insertEmp">
+        insert into t_emp values(null,#{empName},#{empAge},#{empGender},null)
+    </insert>
+</mapper>

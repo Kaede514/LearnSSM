@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="userController" class="com.kaede.spring.controller.UserController" autowire="byType">
+        <!--<property name="userService" ref="userService"></property>-->
+    </bean>
+
+    <bean id="userService" class="com.kaede.spring.service.impl.UserServiceImpl" autowire="byName">
+        <!--<property name="userDAO" ref="userDAO"></property>-->
+    </bean>
+
+    <bean id="userDAO" class="com.kaede.spring.dao.impl.UserDAOImpl"></bean>
+
+    <bean id="dao" class="com.kaede.spring.dao.impl.UserDAOImpl"></bean>
+
+</beans>
