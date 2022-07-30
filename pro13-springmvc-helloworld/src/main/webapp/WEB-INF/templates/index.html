@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<!--使用thyemleaf需要导入 xmlns:th="http://www.thymeleaf.org"-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+</head>
+<body>
+    <h1>index.html</h1>
+    <!--以/开头的路径为绝对路径，由浏览器解析解析为localhost:8080，无应用程序上下文路径-->
+    <a href="/hello">测试绝对路径</a>
+    <!--由thymeleaf的方式解析路径会自动加上上下文路径-->
+    <a th:href="@{/hello}">测试pro13</a>
+</body>
+</html>
